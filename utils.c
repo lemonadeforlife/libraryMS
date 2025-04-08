@@ -88,8 +88,206 @@ void menu(char *path) {
                "(%s)" RESET BWHT "$ " RESET;
   printf(menu, path);
 }
+
 /*
 ######################
  Backend Functions
 #####################
 */
+
+// Book structure for linked list
+typedef struct Node {
+    char title[100];
+    char author[100];
+    int releaseYear;
+    struct Node* next;
+} Node;
+
+// Global Head and Tail
+Node* head = NULL;
+Node* tail = NULL;
+
+// Backend Functions (Add, Delete, Display, Search, Update)
+void addBook() {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+
+    if (newNode == NULL) {
+        printf(RED "Memory allocation failed!\n" RESET);
+        return;
+    }
+
+    printf("\nEnter book title: ");
+    getchar();
+    fgets(newNode->title, 100, stdin);
+    newNode->title[strcspn(newNode->title, "\n")] = '\0';
+
+    printf("Enter author name: ");
+    fgets(newNode->author, 100, stdin);
+    newNode->author[strcspn(newNode->author, "\n")] = '\0';
+
+    printf("Enter release year: ");
+    scanf("%d", &newNode->releaseYear);
+
+    newNode->next = NULL;
+
+    if (head == NULL) {
+        head = newNode;
+        tail = newNode;
+    } else {
+        tail->next = newNode;
+        tail = newNode;
+    }
+
+    printf(GRN "\nBook added successfully!\n" RESET);
+    _pause();
+}
+
+void displayBooks() {
+    if (head == NULL) {
+        printf(RED "\nNo books available.\n" RESET);
+        _pause();
+        return;
+    }
+
+    Node* temp = head;
+    printf("\nList of Books:\n");
+    while (temp != NULL) {
+        printf("\nTitle: %s\n", temp->title);
+        printf("Author: %s\n", temp->author);
+        printf("Release Year: %d\n", temp->releaseYear);
+        temp = temp->next;
+    }
+    _pause();
+}
+
+void searchBook() {
+    if (head == NULL) {
+        printf(RED "\nNo books to search.\n" RESET);
+        _pause();
+        return;
+    }
+
+    char title[100];
+    printf("\nEnter the title of the book to search: ");
+    getchar();
+    fgets(title, 100, stdin);
+    title[strcspn(title, "\n")] = '\0';
+
+    Node* temp = head;
+    while (temp != NULL) {
+        if (strcmp(temp->title, title) == 0) {
+            printf("\nBook found:\n");
+            printf("Title: %s\n", temp->title);
+            printf("Author: %s\n", temp->author);
+            printf("Release Year: %d\n", temp->releaseYear);
+            _pause();
+            return;
+        }
+        temp = temp->next;
+    }
+
+    printf(RED "\nBook not found!\n" RESET);
+    _pause();
+}
+
+void deleteBook() {
+    if (head == NULL) {
+        printf(RED "\nNo books to delete.\n" RESET);
+        _pause();
+        return;
+    }
+
+    char title[100];
+    printf("\nEnter the title of the book to delete: ");
+    getchar();
+    fgets(title, 100, stdin);
+    title[strcspn(title, "\n")] = '\0';
+
+    Node *temp = head, *prev = NULL;
+
+    // Head node deletion
+    if (temp != NULL && strcmp(temp->title, title) == 0) {
+        head = temp->next;
+        if (tail == temp) tail = NULL;
+        free(temp);
+        printf(GRN "\nBook deleted successfully!\n" RESET);
+        _pause();
+        return;
+    }
+
+    while (temp != NULL && strcmp(temp->title, title) != 0) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf(RED "\nBook not found!\n" RESET);
+        _pause();
+        return;
+    }
+
+    prev->next = temp->next;
+    if (tail == temp) {
+        tail = prev;
+    }
+    free(temp);
+    printf(GRN "\nBook deleted successfully!\n" RESET);
+    _pause();
+}
+
+void updateBook() {
+    if (head == NULL) {
+        printf(RED "\nNo books available to update.\n" RESET);
+        _pause();
+        return;
+    }
+
+    char title[100];
+    printf("\nEnter the title of the book to update: ");
+    getchar();
+    fgets(title, 100, stdin);
+    title[strcspn(title, "\n")] = '\0';
+
+    Node* temp = head;
+    while (temp != NULL) {
+        if (strcmp(temp->title, title) == 0) {
+            int choice;
+            printf("\nWhat do you want to update?\n");
+            printf("[1] Title\n");
+            printf("[2] Author\n");
+            printf("[3] Release Year\n");
+            printf("Enter your choice: ");
+            scanf("%d", &choice);
+            getchar(); // clear buffer
+
+            switch (choice) {
+                case 1:
+                    printf("Enter new title: ");
+                    fgets(temp->title, 100, stdin);
+                    temp->title[strcspn(temp->title, "\n")] = '\0';
+                    printf(GRN "\nTitle updated successfully!\n" RESET);
+                    break;
+                case 2:
+                    printf("Enter new author: ");
+                    fgets(temp->author, 100, stdin);
+                    temp->author[strcspn(temp->author, "\n")] = '\0';
+                    printf(GRN "\nAuthor updated successfully!\n" RESET);
+                    break;
+                case 3:
+                    printf("Enter new release year: ");
+                    scanf("%d", &temp->releaseYear);
+                    printf(GRN "\nRelease year updated successfully!\n" RESET);
+                    break;
+                default:
+                    printf(RED "\nInvalid choice.\n" RESET);
+                    break;
+            }
+            _pause();
+            return;
+        }
+        temp = temp->next;
+    }
+
+    printf(RED "\nBook not found!\n" RESET);
+    _pause();
+}
