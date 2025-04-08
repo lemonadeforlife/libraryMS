@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h> // for system
 #include <unistd.h> // for getcwd functions
+#include <string.h>
 
 #ifdef _WIN32
 #include <conio.h>
