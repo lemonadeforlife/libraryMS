@@ -26,12 +26,12 @@ int main() {
       _pause();
     } else {
       fflush(stdin);
-      if (opt == 1) { // Add Book
+      if (opt == 1) {
         addBook();
-      } else if (opt == 2) { // Display All Books
+      } else if (opt == 2) {
         clear();
         displayBooks();
-      } else if (opt == 3) { // Search Book
+      } else if (opt == 3) {
         clear();
         menu(currentDir(), opt, 0);
         int srch_opt;
@@ -43,7 +43,7 @@ int main() {
         clear();
         menu(currentDir(), opt, 0);
         searchBook(opt);
-      } else if (opt == 4) { // update Book
+      } else if (opt == 4) {
         clear();
         updateBook();
       } else if (opt == 5) {
@@ -53,7 +53,7 @@ int main() {
         scanf("%d", &del_opt);
         clear();
         menu(currentDir(), opt, del_opt);
-        deleteBook(del_opt); // delete book
+        deleteBook(del_opt);
       } else if (opt == 6) {
         reserveBook();
       } else if (opt == 0) {

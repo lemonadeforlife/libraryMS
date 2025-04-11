@@ -7,7 +7,6 @@
 #include <conio.h>
 #endif
 // COLORS
-// Used
 #define GRN "\e[0;32m"
 #define CYN "\e[0;36m"
 #define YEL "\e[0;33m"
@@ -17,20 +16,14 @@
 #define BYEL "\e[1;33m"
 #define BWHT "\e[1;37m"
 
-/*
-######################
- UI Related Functions
-#####################
- */
+// UI Related Functions
 char *currentDir() {
   static char dir[1024];
   getcwd(dir, sizeof(dir));
   return dir;
 }
-// clear Terminal buffer or screen
 void clear() { system("@cls||clear"); }
 
-// Pauses screen & wait for user input for continue any process
 void _pause() {
 #ifdef __linux__
   system("sh -c \"read -n 1 -s -r -p 'Press any key to continue... '\"");
@@ -39,7 +32,7 @@ void _pause() {
   getch();
 #endif
 }
-// TODO: Test this menu on windows @lemoande
+
 void menu(char *path, int opt, int alt_opt) {
   printf("       .--.                   .---.\n"
          "   .---|__|           .-.     |~~~|\n"
@@ -101,11 +94,7 @@ void menu(char *path, int opt, int alt_opt) {
          path);
 }
 
-/*
-######################
- Backend Functions
-#####################
-*/
+// Backend Functions
 
 // Book structure for linked list
 typedef struct Node {
@@ -113,18 +102,17 @@ typedef struct Node {
   char title[100];
   char author[100];
   int releaseYear;
-  int is_reserved;      // 0 for not reserved, 1 for reserved
-  char reserved_by[50]; // student's name or ID
+  int is_reserved;
+  char reserved_by[50];
   struct Node *next;
 } node;
-
 node *head = NULL, *tail = NULL;
-// Backend Functions (Add, Delete, Display, Search, Update)
+
+// Database Function
 void save(node *head, char operation[2]) {
   FILE *file = fopen("library.txt", operation);
   if (!file)
     return;
-
   node *curr = head;
   while (curr) {
     fprintf(file, "%d;%s;%s;%d;%d;%s\n", curr->id, curr->title, curr->author,
@@ -132,7 +120,6 @@ void save(node *head, char operation[2]) {
             strlen(curr->reserved_by) ? curr->reserved_by : " ");
     curr = curr->next;
   }
-
   fclose(file);
 }
 
@@ -140,9 +127,7 @@ void load(node **head, node **tail) {
   FILE *file = fopen("library.txt", "r");
   if (!file)
     return;
-
   *head = *tail = NULL;
-
   while (!feof(file)) {
     node *new_node = malloc(sizeof(node));
     if (fscanf(file, "%d;%99[^;];%99[^;];%d;%d;%49[^\n]\n", &new_node->id,
@@ -160,39 +145,31 @@ void load(node **head, node **tail) {
       break;
     }
   }
-
   fclose(file);
 }
 
+// Backend Functions (Add, Delete, Display, Search, Update)
 void addBook() {
   node *newNode = (node *)malloc(sizeof(node));
-
   if (newNode == NULL) {
     printf(RED "Memory allocation failed!\n" RESET);
     return;
   }
-
   printf("\nEnter Book ID: ");
   scanf("%d", &newNode->id);
-
   printf("Enter book title: ");
   getchar();
   fgets(newNode->title, 100, stdin);
   newNode->title[strcspn(newNode->title, "\n")] = '\0';
-
   printf("Enter author name: ");
   fgets(newNode->author, 100, stdin);
   newNode->author[strcspn(newNode->author, "\n")] = '\0';
-
   printf("Enter release year: ");
   scanf("%d", &newNode->releaseYear);
 
-  // 🔧 Initialize reservation status
   newNode->is_reserved = 0;
   strcpy(newNode->reserved_by, "");
-
   newNode->next = NULL;
-
   if (head == NULL) {
     head = newNode;
     tail = newNode;
@@ -211,7 +188,6 @@ void displayBooks() {
     _pause();
     return;
   }
-
   node *temp = head;
   printf("\nList of Books:\n");
   while (temp != NULL) {
@@ -235,14 +211,11 @@ void searchBook(int opt) {
     _pause();
     return;
   }
-
   node *temp = head;
-
   if (opt == 1 || opt == 31) {
     int id;
     printf("\nEnter the book ID to search: ");
     scanf("%d", &id);
-
     while (temp != NULL) {
       if (temp->id == id) {
         printf("\nBook found:\n");
@@ -255,14 +228,12 @@ void searchBook(int opt) {
       }
       temp = temp->next;
     }
-
   } else if (opt == 2 || opt == 32) {
     char title[100];
     printf("\nEnter the title of the book to search: ");
     getchar();
     fgets(title, 100, stdin);
     title[strcspn(title, "\n")] = '\0';
-
     while (temp != NULL) {
       if (strcmp(temp->title, title) == 0) {
         printf("\nBook found:\n");
@@ -275,14 +246,12 @@ void searchBook(int opt) {
       }
       temp = temp->next;
     }
-
   } else if (opt == 3 || opt == 33) {
     char author[100];
     printf("\nEnter the author name to search: ");
     getchar();
     fgets(author, 100, stdin);
     author[strcspn(author, "\n")] = '\0';
-
     while (temp != NULL) {
       if (strcmp(temp->author, author) == 0) {
         printf("\nBook found:\n");
@@ -296,7 +265,6 @@ void searchBook(int opt) {
       temp = temp->next;
     }
   }
-
   printf(RED "\nBook not found!\n" RESET);
   _pause();
 }
@@ -307,7 +275,6 @@ void deleteBook(int opt) {
     _pause();
     return;
   }
-
   char input[100];
   printf("\nEnter the ");
   if (opt == 1 || opt == 51)
@@ -317,13 +284,10 @@ void deleteBook(int opt) {
   else if (opt == 3 || opt == 53)
     printf("author");
   printf(" of the book to delete: ");
-
   getchar();
   fgets(input, 100, stdin);
   input[strcspn(input, "\n")] = '\0';
-
   node *temp = head, *prev = NULL;
-
   while (temp != NULL) {
     int match = 0;
     if ((opt == 1 || opt == 51) && atoi(input) == temp->id)
@@ -332,7 +296,6 @@ void deleteBook(int opt) {
       match = 1;
     else if ((opt == 3 || opt == 53) && strcmp(input, temp->author) == 0)
       match = 1;
-
     if (match) {
       if (temp == head)
         head = temp->next;
@@ -346,11 +309,9 @@ void deleteBook(int opt) {
       _pause();
       return;
     }
-
     prev = temp;
     temp = temp->next;
   }
-
   printf(RED "\nBook not found!\n" RESET);
   _pause();
 }
@@ -361,13 +322,11 @@ void updateBook() {
     _pause();
     return;
   }
-
   char title[100];
   printf("\nEnter the title of the book to update: ");
   getchar();
   fgets(title, 100, stdin);
   title[strcspn(title, "\n")] = '\0';
-
   node *temp = head;
   while (temp != NULL) {
     if (strcmp(temp->title, title) == 0) {
@@ -378,8 +337,7 @@ void updateBook() {
       printf("[3] Release Year\n");
       printf("Enter your choice: ");
       scanf("%d", &choice);
-      getchar(); // clear buffer
-
+      getchar();
       switch (choice) {
       case 1:
         printf("Enter new title: ");
@@ -414,13 +372,12 @@ void updateBook() {
   printf(RED "\nBook not found!\n" RESET);
   _pause();
 }
+
 void reserveBook() {
   int bookId;
   char studentName[50];
-
   printf("Enter Book ID to reserve: ");
   scanf("%d", &bookId);
-
   node *current = head;
   while (current != NULL) {
     if (current->id == bookId) {
@@ -433,9 +390,7 @@ void reserveBook() {
         scanf(" %[^\n]", studentName);
         current->is_reserved = 1;
         strcpy(current->reserved_by, studentName);
-
-        save(head, "w"); // <== add this line to persist changes
-
+        save(head, "w");
         printf("Book \"%s\" has been successfully reserved for %s.\n",
                current->title, studentName);
         return;
@@ -443,6 +398,5 @@ void reserveBook() {
     }
     current = current->next;
   }
-
   printf("Book with ID %d not found.\n", bookId);
 }
