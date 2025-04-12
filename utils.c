@@ -96,7 +96,7 @@ void menu(char *path, int opt, int alt_opt) {
 
 // Backend Functions
 
-// Book structure for linked list
+// Book structure
 typedef struct Node {
   int id;
   char title[100];
